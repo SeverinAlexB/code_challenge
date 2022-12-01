@@ -2,8 +2,9 @@ import { BaseMessage } from "./BaseMessage";
 
 
 export class PingPongMessage extends BaseMessage {
-    constructor() {
+    constructor(type: 'ping' | 'pong') {
         super('PingPongMessage');
+        this.message = type;
     }
-    public message: 'ping' | 'pong' = 'ping';
+    public message: 'ping' | 'pong';
 }

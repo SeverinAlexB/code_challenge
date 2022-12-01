@@ -43,8 +43,6 @@ export class ExchangeServer {
                 handler.reply(null, serialized);
             }
         });
-
-        console.log(`Server started. ID:`, this.exchangeId);
     }
 
     public stop() {
@@ -74,10 +72,9 @@ export class ExchangeServer {
     }
 
     private processPingPong(msg: any): any {
-        const message = new PingPongMessage();
+        const message = new PingPongMessage('pong');
         message.exchangeId = this.exchangeId;
         message.creatorType = 'server';
-        message.message = 'pong';
         return message
     }
 
@@ -153,7 +150,7 @@ export class ExchangeServer {
                     console.log(' -', order.toString());
                 }
             } catch (e) {
-                console.error('Couldnt reach endpoint', endpoint, e);
+                console.error('Couldnt reach peer', endpoint, (e as any)?.message);
                 continue;
             }
 

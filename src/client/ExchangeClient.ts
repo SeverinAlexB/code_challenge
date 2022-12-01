@@ -4,8 +4,7 @@ import { ExecuteOrderResponse } from "../messages/ExecuteOrderResponse";
 import { GetOrderbookMessage } from "../messages/GetOrderbookMessage";
 import { GetOrderMatchesMessage } from "../messages/GetOrderMatchesMessage";
 import { PingPongMessage } from "../messages/PingPongMessage";
-import { OrderBook } from "../server/OrderBook";
-import { StaticGrapeLink } from "./StaticGrapeLink";
+import { SingleEndpointGrapeLink } from "./StaticGrapeLink";
 
 const Link = require('grenache-nodejs-link'); // No types available? :(
 const { PeerRPCClient } = require('grenache-nodejs-http'); // No types available? :(
@@ -23,7 +22,6 @@ export class ExchangeClient {
 
         this.peer = new PeerRPCClient(this.link, {});
         this.peer.init();
-        console.log(`Client started. ID:`, this.exchangeId);
     }
 
     private async request(requestData: any): Promise<any> {
@@ -46,7 +44,7 @@ export class ExchangeClient {
     }
 
     private async requestEndpoint(requestData: any, endPoint: string): Promise<any> {
-        const peer = new PeerRPCClient(new StaticGrapeLink(endPoint));
+        const peer = new PeerRPCClient(new SingleEndpointGrapeLink(endPoint));
         peer.init();
         const jsonMessage = JSON.stringify(requestData);
         return new Promise<any>((resolve, reject) => {
@@ -67,14 +65,13 @@ export class ExchangeClient {
     }
 
     public async ping() {
-        const message = new PingPongMessage();
+        const message = new PingPongMessage('ping');
         message.exchangeId = this.exchangeId;
         message.creatorType = 'client';
-        message.message = 'ping';
 
         try {
-            const result = await this.request(message);
-            console.log('Ping successful:', result);
+            await this.request(message);
+            console.log('Ping successful.');
         } catch (e) {
             console.log('Ping failed.');
         }
@@ -84,7 +81,6 @@ export class ExchangeClient {
     public async addOrder(order: AddOrderMessage) {
         order.exchangeId = this.exchangeId;
         order.creatorType = 'client';
-        // Todo: Add endpoint if my server so other users can call to execute my order.
 
         const result = await this.request(order);
         console.log(`Added order ${order.toString()} successfully`, result);
@@ -100,7 +96,6 @@ export class ExchangeClient {
         const result = await this.request(message);
 
         const orders = result.map((order: any) => AddOrderMessage.fromJson(order));
-        console.log(`Found the following matches`, orders);
         return orders;
     }
 

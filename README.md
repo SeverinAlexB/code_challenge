@@ -32,6 +32,7 @@ I made a lot of `// Todo:` in the code where improvements are necessary. Some hi
 - `exchangeId` is the same as the server port. This simplifies the development but is of course not a solution in the real world.
 - Add better logging system.
 - One could make the system more resilient as a failed request brings the whole system down instead of trying trying another peer.
+- The current system only matches orders that are a 100% fit.
 
 
 ## Getting started

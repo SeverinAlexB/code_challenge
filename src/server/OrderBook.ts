@@ -23,6 +23,6 @@ export class OrderBook {
         if (!order) {
             return [];
         }
-        return this.orders.filter(other => order?.isMatch(other));
+        return this.orders.filter(other => order.isMatch(other));
     }
 }
