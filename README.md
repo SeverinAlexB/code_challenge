@@ -15,7 +15,6 @@ The client can call the server and execute the following commands:
 
 The server has the following capabilities:
 - Ping Pong
-- Looks up a list of all available service endpoints. These can be used to sync the orderbook initially.
 - Receives single orders and adds it to its orderbook.
 - Returns matches to the user from within it's orderbook.
 - Returns a lightning invoice (expires within 15min) in case somebody wants to execute the trade (expiring redis lock on orderId for 15min).
