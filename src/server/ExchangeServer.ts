@@ -1,9 +1,12 @@
+import { AddOrderMessage } from "../messages/AddOrderMessage";
 import { PingPongMessage } from "../messages/PingPongMessage";
+import { OrderBook } from "./OrderBook";
 
 const { PeerRPCServer } = require('grenache-nodejs-http'); // No types available? :(
 const Link = require('grenache-nodejs-link');
 
 export class ExchangeServer {
+    private orderBook = new OrderBook();
     private link: typeof Link;
     private server: typeof PeerRPCServer;
     private serverId =  1024 + Math.floor(Math.random() * 1000);
@@ -44,9 +47,13 @@ export class ExchangeServer {
     private onMessageReceived(msg: any): any {
         if (msg.type === 'PingPongMessage') {
             return this.processPingPong(msg);
+        } else if (msg.type === 'AddOrderMessage') {
+            return this.processAddOrder(msg);
+        } else if (msg.type === 'GetOrderMatchesMessage') {
+            return this.processGetOrderMatches(msg);
         } else {
             throw new Error('Unknown message type ' + msg);
-        }
+        }   
     }
 
     private processPingPong(msg: any): any {
@@ -55,5 +62,17 @@ export class ExchangeServer {
             message.creatorType = 'server';
             message.message = 'pong';
             return message
+    }
+
+    private processAddOrder(msg: any): any {
+        const order = AddOrderMessage.fromJson(msg);
+        this.orderBook.addOrder(order);
+        return 'ok';
+    }
+
+    private processGetOrderMatches(msg: any): any {
+        const orderId = msg.orderId;
+        const matches = this.orderBook.getMatches(orderId);
+        return matches;
     }
 }

@@ -1,3 +1,5 @@
+import { AddOrderMessage } from "../messages/AddOrderMessage";
+import { GetOrderMatchesMessage } from "../messages/GetOrderMatchesMessage";
 import { PingPongMessage } from "../messages/PingPongMessage";
 
 const Link = require('grenache-nodejs-link'); // No types available? :(
@@ -34,6 +36,34 @@ export class ExchangeClient {
                 }
                 console.log('Ping successful:', data);
             });
+    }
+
+    public addOrder(order: AddOrderMessage) {
+        order.creatorId = this.clientId;
+        order.creatorType = 'client';
+        const jsonMessage = JSON.stringify(order);
+        this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
+            if (err) {
+                console.error('Error:', err);
+                throw new Error(err);
+            }
+            console.log(`Added order ${order.id} successfully`, data);
+        });
+    }
+
+    public getOrderMatches(orderId: string) {
+        const message = new GetOrderMatchesMessage();
+        message.orderId = orderId;
+        message.creatorId = this.clientId;
+        message.creatorType = 'client';
+        const jsonMessage = JSON.stringify(message);
+        this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
+            if (err) {
+                console.error('Error:', err);
+                throw new Error(err);
+            }
+            console.log(`Found the following matches`, data);
+        });
     }
     
 }
