@@ -8,17 +8,17 @@ const { PeerRPCClient } = require('grenache-nodejs-http'); // No types available
 export class ExchangeClient {
     private link: typeof Link;
     private peer: typeof PeerRPCClient;
-    private clientId = Math.floor(Math.random() * 9999);
+    constructor(public exchangeId: number) {}
 
     public init() {
         this.link = new Link({
             grape: 'http://127.0.0.1:30001'
-            });
-            this.link.start();
-        
-            this.peer = new PeerRPCClient(this.link, {});
-            this.peer.init();
-            console.log(`Client started. ID:`, this.clientId)
+        });
+        this.link.start();
+    
+        this.peer = new PeerRPCClient(this.link, {});
+        this.peer.init();
+        console.log(`Client started. ID:`, this.exchangeId);
     }
 
     private async request(requestData: any): Promise<any> {
@@ -36,7 +36,7 @@ export class ExchangeClient {
 
     public async ping() {
             const message = new PingPongMessage();
-            message.creatorId = this.clientId;
+            message.creatorId = this.exchangeId;
             message.creatorType = 'client';
             message.message = 'ping';
         
@@ -47,7 +47,7 @@ export class ExchangeClient {
     }
 
     public async addOrder(order: AddOrderMessage) {
-        order.creatorId = this.clientId;
+        order.creatorId = this.exchangeId;
         order.creatorType = 'client';
         const jsonMessage = JSON.stringify(order);
 
@@ -59,7 +59,7 @@ export class ExchangeClient {
     public async getOrderMatches(orderId: string): Promise<AddOrderMessage[]> {
         const message = new GetOrderMatchesMessage();
         message.orderId = orderId;
-        message.creatorId = this.clientId;
+        message.creatorId = this.exchangeId;
         message.creatorType = 'client';
         const jsonMessage = JSON.stringify(message);
 
@@ -68,6 +68,19 @@ export class ExchangeClient {
         const orders = result.map((order: any) => AddOrderMessage.fromJson(order));
         console.log(`Found the following matches`, orders);
         return orders;
+    }
+
+    public async getServiceEndpoints(): Promise<string[]> {
+        return new Promise<string[]>((resolve, reject) => {
+            this.link.lookup('exchange', [], (res: any, endpoints: string[]) => {
+                resolve(endpoints);
+            })
+        });
+    }
+
+    public async syncOrderBook() {
+        const endpoints = await this.getServiceEndpoints();
+        // Todo: Call each endpoint to get their orderbooks. Merge then into our book.
     }
     
 }

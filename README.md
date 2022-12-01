@@ -7,15 +7,11 @@ Install dependencies:
 npm i
 ```
 
-Run server:
+Run exchange:
 ```bash
-npm run start -- server
+npm run start
 ```
 
-Run client:
-```bash
-npm run start -- client
-```
 
 ## Dev
 

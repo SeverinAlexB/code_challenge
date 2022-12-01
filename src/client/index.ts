@@ -1,17 +1,11 @@
+import { sleep } from "../helper";
 import { AddOrderMessage } from "../messages/AddOrderMessage";
 import { ExchangeClient } from "./ExchangeClient";
 
-async function sleep(ms: number) {
-    return new Promise(( resolve, _) => {
-        setTimeout(() => {
-            resolve(undefined);
-        }, ms);
-    })
-}
 
 
-export async function startClient() {
-    const client = new ExchangeClient();
+export async function startClient(exchangeId: number) {
+    const client = new ExchangeClient(exchangeId);
     client.init();
     await client.ping();
 

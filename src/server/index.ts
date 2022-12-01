@@ -1,7 +1,7 @@
 
 import { ExchangeServer } from "./ExchangeServer";
 
-export async function startServer() {
-    const server = new ExchangeServer();
+export async function startServer(exchangeId: number) {
+    const server = new ExchangeServer(exchangeId);
     server.init();
 }

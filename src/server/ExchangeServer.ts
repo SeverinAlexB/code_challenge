@@ -9,7 +9,7 @@ export class ExchangeServer {
     private orderBook = new OrderBook();
     private link: typeof Link;
     private server: typeof PeerRPCServer;
-    private serverId =  1024 + Math.floor(Math.random() * 1000);
+    constructor(public exchangeId: number) {}
 
     public init() {
         this.link = new Link({
@@ -22,7 +22,7 @@ export class ExchangeServer {
         });
         this.server.init();
     
-        const port = this.serverId;
+        const port = this.exchangeId;
         const service = this.server.transport('server');
         service.listen(port);
 
@@ -41,7 +41,7 @@ export class ExchangeServer {
             }
         });
 
-        console.log(`Server started. ID:`, this.serverId);
+        console.log(`Server started. ID:`, this.exchangeId);
     }
 
     private onMessageReceived(msg: any): any {
@@ -58,7 +58,7 @@ export class ExchangeServer {
 
     private processPingPong(msg: any): any {
             const message = new PingPongMessage();
-            message.creatorId = this.serverId;
+            message.creatorId = this.exchangeId;
             message.creatorType = 'server';
             message.message = 'pong';
             return message
@@ -67,6 +67,7 @@ export class ExchangeServer {
     private processAddOrder(msg: any): any {
         const order = AddOrderMessage.fromJson(msg);
         this.orderBook.add(order);
+        // Todo: Call other peers to tell them that we have a new order.
         return 'ok';
     }
 
@@ -75,4 +76,6 @@ export class ExchangeServer {
         const matches = this.orderBook.getMatches(orderId);
         return matches;
     }
+
+    
 }
