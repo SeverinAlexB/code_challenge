@@ -1,0 +1,9 @@
+{
+  "mochaExplorer.files": "test/**/*.ts",
+  "mochaExplorer.require": [
+    "ts-node/register",
+    "esm",
+    // "source-map-support/register",
+  ],
+  "mochaExplorer.exit": true,
+}
