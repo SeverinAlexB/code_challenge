@@ -3,6 +3,7 @@ import { ExecuteOrderMessage } from "../messages/ExecuteOrderMessage";
 import { ExecuteOrderResponse } from "../messages/ExecuteOrderResponse";
 import { GetOrderMatchesMessage } from "../messages/GetOrderMatchesMessage";
 import { PingPongMessage } from "../messages/PingPongMessage";
+import { StaticGrapeLink } from "./StaticGrapeLink";
 
 const Link = require('grenache-nodejs-link'); // No types available? :(
 const { PeerRPCClient } = require('grenache-nodejs-http'); // No types available? :(
@@ -37,9 +38,25 @@ export class ExchangeClient {
         })
     }
 
+    private async requestEndpoint(requestData: any, endPoint: string): Promise<any> {
+        const peer = new PeerRPCClient(new StaticGrapeLink(endPoint));
+        peer.init();
+        const jsonMessage = JSON.stringify(requestData);
+        return new Promise<any>((resolve, reject) => {
+            this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
+                if (err) {
+                    console.error('Error:', err);
+                    reject(err);
+                }
+                const deserialized = JSON.parse(data);
+                resolve(deserialized);
+            });
+        });
+    }
+
     public async ping() {
             const message = new PingPongMessage();
-            message.creatorId = this.exchangeId;
+            message.exchangeId = this.exchangeId;
             message.creatorType = 'client';
             message.message = 'ping';
 
@@ -48,7 +65,7 @@ export class ExchangeClient {
     }
 
     public async addOrder(order: AddOrderMessage) {
-        order.creatorId = this.exchangeId;
+        order.exchangeId = this.exchangeId;
         order.creatorType = 'client';
         // Todo: Add endpoint if my server so other users can call to execute my order.
 
@@ -60,7 +77,7 @@ export class ExchangeClient {
     public async getOrderMatches(orderId: string): Promise<AddOrderMessage[]> {
         const message = new GetOrderMatchesMessage();
         message.orderId = orderId;
-        message.creatorId = this.exchangeId;
+        message.exchangeId = this.exchangeId;
         message.creatorType = 'client';
         
         const result = await this.request(message);
@@ -70,14 +87,15 @@ export class ExchangeClient {
         return orders;
     }
 
-    public async executeOrder(orderId: string): Promise<ExecuteOrderResponse> {
+    public async executeOrder(order: AddOrderMessage): Promise<ExecuteOrderResponse> {
         const message = new ExecuteOrderMessage();
-        message.creatorId = this.exchangeId;
+        message.exchangeId = this.exchangeId;
         message.creatorType = 'client';
-        message.orderId = orderId;
+        message.orderId = order.id;
         // This message needs to be sent to the specific endpoint where the orderid comes from.
         // Todo: Implement call to specific endpoint for order execution.
-        return await this.request(message);
+        const endpoint = `localhost:${order.exchangeId}`;
+        return await this.requestEndpoint(message, endpoint);
     }
     
 }

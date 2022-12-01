@@ -34,7 +34,7 @@ export class ExchangeServer {
 
         service.on('request', (rid: any, key: any, payload: any, handler: any) => {
             const msg = JSON.parse(payload);
-            console.log(`Received from ${msg.creatorId}:`, payload);
+            console.log(`Received from ${msg.exchangeId}:`, payload);
             const response = this.onMessageReceived(msg);
             if (response) {
                 const serialized = JSON.stringify(response);
@@ -72,7 +72,7 @@ export class ExchangeServer {
 
     private processPingPong(msg: any): any {
             const message = new PingPongMessage();
-            message.creatorId = this.exchangeId;
+            message.exchangeId = this.exchangeId;
             message.creatorType = 'server';
             message.message = 'pong';
             return message
@@ -100,7 +100,7 @@ export class ExchangeServer {
         // Make a redis lock on the orderId which expires in 15min.
 
         const response = new ExecuteOrderResponse();
-        response.creatorId = this.exchangeId;
+        response.exchangeId = this.exchangeId;
         response.creatorType = 'server';
         const _15min = 1000*60*15;
         response.exiresAt = new Date().getTime() + _15min;

@@ -11,6 +11,7 @@ async function main() {
   const server = new ExchangeServer(exchangeId);
   try {
     server.init();
+    await server.syncOrderBook();
     await sleep(2000);
     const client = new ExchangeClient(exchangeId);
     client.init();
@@ -56,7 +57,7 @@ async function startPlaybook(client: ExchangeClient) {
       console.log(`-`, match.toString());
   }
 
-  const invoice = await client.executeOrder(matches[0].id);
+  const invoice = await client.executeOrder(matches[0]);
 
   console.log(`Execute trade with Lightninig invoice that expires in 15min.`, invoice.orderId, '<-->', buyOrder.id);
   // Todo: Pay lightning invoice to complete the exchange.

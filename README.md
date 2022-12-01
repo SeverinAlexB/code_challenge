@@ -4,7 +4,7 @@ This is a first try of a P2P exchange that uses grape for service discovery.
 
 ## What is implemented
 
-Every user runs a RPC Client and Server. They communicate via messages in [src/message](src/message/).
+Every user runs a ExchangeClient (RPCClient) and an ExchangeServer (RPCServer). They communicate via messages in [src/message](src/message/).
 
 The client can call the server and execute the following commands:
 - Ping Pong
@@ -15,7 +15,7 @@ The client can call the server and execute the following commands:
 The server has the following capabilities:
 - Ping Pong
 - Looks up a list of all available service endpoints. These can be used to sync the orderbook initially.
-- Receives single order and adds it to its orderbook.
+- Receives single orders and adds it to its orderbook.
 - Returns matches to the user from within it's orderbook.
 - Returns a lightning invoice (expires within 15min) in case somebody wants to execute the trade. (expiring redis lock on orderId for 15min).
 
@@ -27,7 +27,10 @@ I made a lot of `// Todo:` in the code where improvements are necessary. Some hi
 - Order are currently not removed after execution and they don't expire.
 - The orderbook doesn't check for any duplicates.
 - Initial orderbooks are not yet synced. The list of endpoints is already fetched though.
-- Order are not propagated to the peers.
+- Add code to call a specific service endpoint.
+- New orders are not propagated to the peers.
+- The code has room for improvement from an "Clean Code" perspective.
+- `exchangeId` == `serverPort`. This simplifies the development but is of course not a solution in the real world.
 
 
 

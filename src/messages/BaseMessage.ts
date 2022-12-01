@@ -4,7 +4,7 @@ export class BaseMessage {
     }
 
     public type: string = '';
-    public creatorId: number = -1;
+    public exchangeId: number = -1;
     public creatorType: "server" | "client" | null = null;
     public createdAt: number = new Date().getTime();
 }
