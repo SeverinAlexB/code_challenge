@@ -28,10 +28,10 @@ I made a lot of `// Todo:` in the code where improvements are necessary. Some hi
 - Messages are serialized/desearlized manually. A library like [ts-serialize](https://www.npmjs.com/package/ts-serializable) could help enourmously.
 - Orders are currently not removed after execution and they don't expire.
 - New orders are not propagated to the peers.
-- The code has room for improvement from an "Clean Code" perspective. Same with tests.
+- The code has room for improvement from a testing perspective.
 - `exchangeId` is the same as the server port. This simplifies the development but is of course not a solution in the real world.
-- Add better logging system.
-- One could make the system more resilient as a failed request brings the whole system down instead of trying trying another peer.
+- Remove unnecessary logs.
+- One could make the system more resilient as a failed request brings the whole system down instead of retrying another peer.
 - The current system only matches orders that are a 100% fit.
 
 
@@ -51,11 +51,11 @@ npm run start
 
 When started, the code automatically runs a [playbook](src/index.ts) where
 - The server syncs the orderbook with its peer. 
-- The client pings the server.
+- The client pings a server.
 - The client publishes a buy order.
 - The client polls for matches every 1s.
 - The client publishes a sell order 3s after the buy order.
-- The client fetches the lightning invoice.
+- The client fetches the lightning invoice from the service that originally published it.
 
 
 ## Dev
