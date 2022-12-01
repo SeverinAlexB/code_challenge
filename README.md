@@ -49,12 +49,13 @@ grape --dp 20002 --aph 40001 --bn '127.0.0.1:20001'
 npm run start
 ```
 
-When started, the client automatically runs a [playbook](src/index.ts) where it 
-- pings the server.
-- publishes a buy order.
-- polls for matches every 1s.
-- publishes a sell order 7s after the buy order.
-- Fetches the lightning invoice.
+When started, the code automatically runs a [playbook](src/index.ts) where
+- The server syncs the orderbook with its peer. 
+- The client pings the server.
+- The client publishes a buy order.
+- The client polls for matches every 1s.
+- The client publishes a sell order 3s after the buy order.
+- The client fetches the lightning invoice.
 
 
 ## Dev
