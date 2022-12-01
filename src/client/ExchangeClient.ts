@@ -24,11 +24,14 @@ export class ExchangeClient {
         this.peer.init();
     }
 
-    private async request(requestData: any): Promise<any> {
+    private async request(requestData: any, peer?: typeof PeerRPCClient): Promise<any> {
+        if (!peer) {
+            peer = this.peer;
+        }
         const jsonMessage = JSON.stringify(requestData);
         return new Promise<any>((resolve, reject) => {
             try {
-                this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
+                peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
                     if (err) {
                         reject(err);
                         return;
@@ -46,22 +49,7 @@ export class ExchangeClient {
     private async requestEndpoint(requestData: any, endPoint: string): Promise<any> {
         const peer = new PeerRPCClient(new SingleEndpointGrapeLink(endPoint));
         peer.init();
-        const jsonMessage = JSON.stringify(requestData);
-        return new Promise<any>((resolve, reject) => {
-            try {
-                this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    const deserialized = JSON.parse(data);
-                    resolve(deserialized);
-                });
-            } catch (e) {
-                reject(e);
-            }
-
-        });
+        return await this.request(requestData, peer);
     }
 
     public async ping() {
