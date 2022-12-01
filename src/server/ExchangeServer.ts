@@ -66,7 +66,7 @@ export class ExchangeServer {
 
     private processAddOrder(msg: any): any {
         const order = AddOrderMessage.fromJson(msg);
-        this.orderBook.addOrder(order);
+        this.orderBook.add(order);
         return 'ok';
     }
 

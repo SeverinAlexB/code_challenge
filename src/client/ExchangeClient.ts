@@ -21,49 +21,53 @@ export class ExchangeClient {
             console.log(`Client started. ID:`, this.clientId)
     }
 
-    public ping() {
+    private async request(requestData: any): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            this.peer.request('exchange', requestData, { timeout: 10000 }, (err: any, data: any) => {
+                if (err) {
+                    console.error('Error:', err);
+                    reject(err);
+                }
+                const deserialized = JSON.parse(data);
+                resolve(deserialized);
+            });
+        })
+    }
+
+    public async ping() {
             const message = new PingPongMessage();
             message.creatorId = this.clientId;
             message.creatorType = 'client';
             message.message = 'ping';
         
             const jsonMessage = JSON.stringify(message);
-        
-            this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
-                if (err) {
-                    console.error('Error:', err);
-                    throw new Error(err);
-                }
-                console.log('Ping successful:', data);
-            });
+
+            const result = await this.request(jsonMessage);
+            console.log('Ping successful:', result);
     }
 
-    public addOrder(order: AddOrderMessage) {
+    public async addOrder(order: AddOrderMessage) {
         order.creatorId = this.clientId;
         order.creatorType = 'client';
         const jsonMessage = JSON.stringify(order);
-        this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
-            if (err) {
-                console.error('Error:', err);
-                throw new Error(err);
-            }
-            console.log(`Added order ${order.id} successfully`, data);
-        });
+
+        const result = await this.request(jsonMessage);
+        console.log(`Added order ${order.toString()} successfully`, result);
+
     }
 
-    public getOrderMatches(orderId: string) {
+    public async getOrderMatches(orderId: string): Promise<AddOrderMessage[]> {
         const message = new GetOrderMatchesMessage();
         message.orderId = orderId;
         message.creatorId = this.clientId;
         message.creatorType = 'client';
         const jsonMessage = JSON.stringify(message);
-        this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
-            if (err) {
-                console.error('Error:', err);
-                throw new Error(err);
-            }
-            console.log(`Found the following matches`, data);
-        });
+
+        const result = await this.request(jsonMessage);
+
+        const orders = result.map((order: any) => AddOrderMessage.fromJson(order));
+        console.log(`Found the following matches`, orders);
+        return orders;
     }
     
 }

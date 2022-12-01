@@ -12,7 +12,7 @@ describe("add function", () => {
         expect(result).equal(3);
       });
 
-      it("add function fail", () => {
+      xit("add function fail", () => {
         const result = add(1,2);
         expect(result).equal(4);
       });

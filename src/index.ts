@@ -21,9 +21,14 @@ function getCommand(): CommandEnum {
   }
 }
 
-const command = getCommand();
-if (command === CommandEnum.client) {
-  startClient();
-} else if (command === CommandEnum.server) {
-  startServer();
+async function main() {
+  const command = getCommand();
+  if (command === CommandEnum.client) {
+    await startClient();
+  } else if (command === CommandEnum.server) {
+    await startServer();
+  }
+  
 }
+
+main();

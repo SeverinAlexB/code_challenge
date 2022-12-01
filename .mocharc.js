@@ -8,7 +8,6 @@ module.exports = {
     ],
     extension: ['ts'],
     spec: [
-        'test/**/*.ts',
         'src/**/*.spec.ts'
     ],
     exit: true

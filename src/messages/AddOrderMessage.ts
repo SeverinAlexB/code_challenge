@@ -1,6 +1,8 @@
 import { BaseMessage } from "./BaseMessage";
 import { v4 as uuidv4 } from 'uuid';
 
+// It is assume the market price of 1BTC is 1USD
+// Todo: Add market price
 
 export class AddOrderMessage extends BaseMessage {
     public id: string = uuidv4();
@@ -13,9 +15,6 @@ export class AddOrderMessage extends BaseMessage {
     }
 
     public isMatch(other: AddOrderMessage): boolean {
-        if (this.id === other.id) {
-            return false;
-        }
         if (this.amountToBuy !== other.amountToBuy) {
             // Only do exact matches to start out.
             // Todo: Add variable matches.
@@ -25,8 +24,8 @@ export class AddOrderMessage extends BaseMessage {
         return marketMatch;
     }
 
-    private toString(): string {
-        return `Buy ${this.amountToBuy} ${this.buy} for ${this.sell}`;
+    public toString(): string {
+        return `${this.id} - Buy ${this.amountToBuy} ${this.buy} for ${this.sell}`;
     }
 
     static fromJson(msg: any): AddOrderMessage {
