@@ -1,8 +1,10 @@
 import { AddOrderMessage } from "../messages/AddOrderMessage";
 import { ExecuteOrderMessage } from "../messages/ExecuteOrderMessage";
 import { ExecuteOrderResponse } from "../messages/ExecuteOrderResponse";
+import { GetOrderbookMessage } from "../messages/GetOrderbookMessage";
 import { GetOrderMatchesMessage } from "../messages/GetOrderMatchesMessage";
 import { PingPongMessage } from "../messages/PingPongMessage";
+import { OrderBook } from "../server/OrderBook";
 import { StaticGrapeLink } from "./StaticGrapeLink";
 
 const Link = require('grenache-nodejs-link'); // No types available? :(
@@ -27,14 +29,20 @@ export class ExchangeClient {
     private async request(requestData: any): Promise<any> {
         const jsonMessage = JSON.stringify(requestData);
         return new Promise<any>((resolve, reject) => {
-            this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
-                if (err) {
-                    console.error('Error:', err);
-                    reject(err);
-                }
-                const deserialized = JSON.parse(data);
-                resolve(deserialized);
-            });
+            try {
+                this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
+                    if (err) {
+                        console.error('Error:', err);
+                        reject(err);
+                        return;
+                    }
+                    const deserialized = JSON.parse(data);
+                    resolve(deserialized);
+                });
+            } catch (e) {
+                reject(e);
+            }
+
         })
     }
 
@@ -43,14 +51,20 @@ export class ExchangeClient {
         peer.init();
         const jsonMessage = JSON.stringify(requestData);
         return new Promise<any>((resolve, reject) => {
-            this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
-                if (err) {
-                    console.error('Error:', err);
-                    reject(err);
-                }
-                const deserialized = JSON.parse(data);
-                resolve(deserialized);
-            });
+            try {
+                this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
+                    if (err) {
+                        console.error('Error:', err);
+                        reject(err);
+                        return;
+                    }
+                    const deserialized = JSON.parse(data);
+                    resolve(deserialized);
+                });
+            } catch (e) {
+                reject(e);
+            }
+
         });
     }
 
@@ -92,9 +106,16 @@ export class ExchangeClient {
         message.exchangeId = this.exchangeId;
         message.creatorType = 'client';
         message.orderId = order.id;
-        // This message needs to be sent to the specific endpoint where the orderid comes from.
-        // Todo: Implement call to specific endpoint for order execution.
+
         const endpoint = `localhost:${order.exchangeId}`;
+        return await this.requestEndpoint(message, endpoint);
+    }
+
+    public async getOrderbook(endpoint: string): Promise<AddOrderMessage[]> {
+        const message = new GetOrderbookMessage();
+        message.exchangeId = this.exchangeId;
+        message.creatorType = 'client';
+
         return await this.requestEndpoint(message, endpoint);
     }
     

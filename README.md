@@ -11,6 +11,7 @@ The client can call the server and execute the following commands:
 - Add order ($1/1BTC)
 - Ask for matches to its order. Matches are polled every 1.5s.
 - Ask the specific service endpoint of the matching order to get us a lightning invoice.
+- Get all order from orderbook.
 
 The server has the following capabilities:
 - Ping Pong
@@ -18,6 +19,7 @@ The server has the following capabilities:
 - Receives single orders and adds it to its orderbook.
 - Returns matches to the user from within it's orderbook.
 - Returns a lightning invoice (expires within 15min) in case somebody wants to execute the trade. (expiring redis lock on orderId for 15min).
+- Return complete orderbook.
 
 ## What can be improved
 
@@ -29,9 +31,9 @@ I made a lot of `// Todo:` in the code where improvements are necessary. Some hi
 - Initial orderbooks are not yet synced. The list of endpoints is already fetched though.
 - Add code to call a specific service endpoint.
 - New orders are not propagated to the peers.
-- The code has room for improvement from an "Clean Code" perspective.
-- `exchangeId` == `serverPort`. This simplifies the development but is of course not a solution in the real world.
-
+- The code has room for improvement from an "Clean Code" perspective. Same with tests.
+- `exchangeId` is the same as the server port. This simplifies the development but is of course not a solution in the real world.
+- Add better logging system.
 
 
 ## Getting started

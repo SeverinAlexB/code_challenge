@@ -11,8 +11,9 @@ async function main() {
   const server = new ExchangeServer(exchangeId);
   try {
     server.init();
-    await server.syncOrderBook();
     await sleep(2000);
+    await server.syncOrderBook();
+
     const client = new ExchangeClient(exchangeId);
     client.init();
 
@@ -33,6 +34,7 @@ async function startPlaybook(client: ExchangeClient) {
   buyOrder.sell = 'USD';
 
   await client.addOrder(buyOrder);
+  await sleep(2*60*1000)
 
   setTimeout(() => {
       // Add sell order with a delay to simulate an async match.

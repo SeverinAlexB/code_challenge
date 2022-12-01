@@ -1,3 +1,4 @@
+import { ExchangeClient } from "../client/ExchangeClient";
 import { AddOrderMessage } from "../messages/AddOrderMessage";
 import { ExecuteOrderResponse } from "../messages/ExecuteOrderResponse";
 import { PingPongMessage } from "../messages/PingPongMessage";
@@ -7,7 +8,7 @@ const { PeerRPCServer } = require('grenache-nodejs-http'); // No types available
 const Link = require('grenache-nodejs-link');
 
 export class ExchangeServer {
-    private orderBook = new OrderBook();
+    public book = new OrderBook();
     private link: typeof Link;
     private server: typeof PeerRPCServer;
     private announceIntervalId: NodeJS.Timeout | undefined;
@@ -65,6 +66,8 @@ export class ExchangeServer {
             return this.processGetOrderMatches(msg);
         } else if (msg.type === 'ExecuteOrderMessage') {
             return this.processExecuteOrder(msg);
+        } else if (msg.type === 'GetOrderbookMessage') {
+            return this.processGetOrderbook(msg);
         } else {
             throw new Error('Unknown message type ' + msg);
         }   
@@ -80,14 +83,14 @@ export class ExchangeServer {
 
     private processAddOrder(msg: any): any {
         const order = AddOrderMessage.fromJson(msg);
-        this.orderBook.add(order);
+        this.book.add(order);
         // Todo: Call other peers to tell them that we have a new order.
         return 'ok';
     }
 
     private processGetOrderMatches(msg: any): any {
         const orderId = msg.orderId;
-        const matches = this.orderBook.getMatches(orderId);
+        const matches = this.book.getMatches(orderId);
         return matches;
     }
 
@@ -111,17 +114,44 @@ export class ExchangeServer {
         return response;
     }
 
-    public async getServiceEndpoints(): Promise<string[]> {
-        return new Promise<string[]>((resolve, reject) => {
-            this.link.lookup('exchange', [], (res: any, endpoints: string[]) => {
-                resolve(endpoints);
+    private processGetOrderbook(msg: any): any {
+        return this.book.orders;
+    }
+
+    public async getPeerServiceEndpoints(): Promise<string[]> {
+        const endpoints = await new Promise<string[]>((resolve, reject) => {
+            this.link.lookup('exchange', [], (err: any, data: string[]) => {
+                if (err) {
+                    if (err.message === 'ERR_GRAPE_LOOKUP_EMPTY') {
+                        resolve([]);
+                    } else {
+                        reject(err);
+                    }
+                    return;
+                }
+                resolve(data);
             })
         });
+       return endpoints.filter(endpoint => !endpoint.includes(':' + this.exchangeId)); // Remove myself.
     }
 
     public async syncOrderBook() {
-        const endpoints = await this.getServiceEndpoints();
-        // Todo: Call each endpoint to get their orderbooks. Merge it into our book.
+        const endpoints = await this.getPeerServiceEndpoints();
+        if (endpoints?.length === 0) {
+            return;
+        }
+
+        const client = new ExchangeClient(this.exchangeId);
+        client.init();
+        for (const endpoint of endpoints) {
+            const orders = await client.getOrderbook(endpoint)
+            console.log(`Synced ${orders.length} orders from ${endpoint}`);
+            for (const orderJson of orders) {
+                const order = AddOrderMessage.fromJson(orderJson);
+                this.book.add(order);
+                console.log(' -', order.toString());
+            }
+        }
     }
 
 }

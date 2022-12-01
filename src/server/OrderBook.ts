@@ -1,10 +1,13 @@
 import { AddOrderMessage } from "../messages/AddOrderMessage";
 
 export class OrderBook {
-    private orders: AddOrderMessage[] = [];
+    public orders: AddOrderMessage[] = [];
 
     public add(order: AddOrderMessage) {
-        this.orders.push(order); // Todo: Check for duplicates
+        if (this.get(order.id)) {
+            return;
+        }
+        this.orders.push(order);
     }
 
     public get(orderId: string): AddOrderMessage | undefined {
