@@ -22,7 +22,7 @@ async function main() {
   } finally {
     server.stop();
   }
-  
+
 }
 
 async function startPlaybook(client: ExchangeClient) {
@@ -34,36 +34,36 @@ async function startPlaybook(client: ExchangeClient) {
   buyOrder.sell = 'USD';
 
   await client.addOrder(buyOrder);
-  await sleep(2*60*1000)
+  await sleep(2 * 60 * 1000)
 
   setTimeout(() => {
-      // Add sell order with a delay to simulate an async match.
-      const sellOrder = new AddOrderMessage();
-      sellOrder.amountToBuy = 1;
-      sellOrder.buy = 'USD';
-      sellOrder.sell = 'BTC';
-      client.addOrder(sellOrder);
+    // Add sell order with a delay to simulate an async match.
+    const sellOrder = new AddOrderMessage();
+    sellOrder.amountToBuy = 1;
+    sellOrder.buy = 'USD';
+    sellOrder.sell = 'BTC';
+    client.addOrder(sellOrder);
   }, 1500);
 
   let matches: AddOrderMessage[] = [];
   while (true) {
     // Check buy order every second to see if we have a match.
-      await sleep(1000);
-      matches = await client.getOrderMatches(buyOrder.id);
-      if (matches.length > 0) {
-          break;
-      }
+    await sleep(1000);
+    matches = await client.getOrderMatches(buyOrder.id);
+    if (matches.length > 0) {
+      break;
+    }
   }
   console.log(`Found ${matches.length} matches to our buy order.`);
   for (const match of matches) {
-      console.log(`-`, match.toString());
+    console.log(`-`, match.toString());
   }
 
   const invoice = await client.executeOrder(matches[0]);
 
   console.log(`Execute trade with Lightninig invoice that expires in 15min.`, invoice.orderId, '<-->', buyOrder.id);
   // Todo: Pay lightning invoice to complete the exchange.
-  
+
   console.log('Notify peers to remove the orders from the orderbook.');
   // Todo: Notify peers to remove the orders from the orderbook.
 

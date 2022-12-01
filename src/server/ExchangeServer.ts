@@ -12,19 +12,19 @@ export class ExchangeServer {
     private link: typeof Link;
     private server: typeof PeerRPCServer;
     private announceIntervalId: NodeJS.Timeout | undefined;
-    constructor(public exchangeId: number) {}
+    constructor(public exchangeId: number) { }
 
     public init() {
         this.link = new Link({
             grape: 'http://127.0.0.1:30001'
         });
         this.link.start();
-    
+
         this.server = new PeerRPCServer(this.link, {
             timeout: 300000
         });
         this.server.init();
-    
+
         const port = this.exchangeId;
         const service = this.server.transport('server');
         service.listen(port);
@@ -70,15 +70,15 @@ export class ExchangeServer {
             return this.processGetOrderbook(msg);
         } else {
             throw new Error('Unknown message type ' + msg);
-        }   
+        }
     }
 
     private processPingPong(msg: any): any {
-            const message = new PingPongMessage();
-            message.exchangeId = this.exchangeId;
-            message.creatorType = 'server';
-            message.message = 'pong';
-            return message
+        const message = new PingPongMessage();
+        message.exchangeId = this.exchangeId;
+        message.creatorType = 'server';
+        message.message = 'pong';
+        return message
     }
 
     private processAddOrder(msg: any): any {
@@ -105,7 +105,7 @@ export class ExchangeServer {
         const response = new ExecuteOrderResponse();
         response.exchangeId = this.exchangeId;
         response.creatorType = 'server';
-        const _15min = 1000*60*15;
+        const _15min = 1000 * 60 * 15;
         response.exiresAt = new Date().getTime() + _15min;
         response.orderId = orderId;
 
@@ -132,7 +132,7 @@ export class ExchangeServer {
                 resolve(data);
             })
         });
-       return endpoints.filter(endpoint => !endpoint.includes(':' + this.exchangeId)); // Remove myself.
+        return endpoints.filter(endpoint => !endpoint.includes(':' + this.exchangeId)); // Remove myself.
     }
 
     public async syncOrderBook() {

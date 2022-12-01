@@ -38,23 +38,23 @@ describe("OrderBook", () => {
     expect(matches.length).equal(0);
   });
 
-    it("add and get", () => {
-      const order = new AddOrderMessage();
-      order.buy = 'BTC';
-      order.sell = 'USD';
-      order.amountToBuy = 1;
+  it("add and get", () => {
+    const order = new AddOrderMessage();
+    order.buy = 'BTC';
+    order.sell = 'USD';
+    order.amountToBuy = 1;
 
-      const book = new OrderBook();
-      book.add(order);
-      const retrieved = book.get(order.id);
-      expect(retrieved?.id).equal(order.id);
+    const book = new OrderBook();
+    book.add(order);
+    const retrieved = book.get(order.id);
+    expect(retrieved?.id).equal(order.id);
 
-    });
+  });
 
 
-    it("get non-existing order", () => {
-      const book = new OrderBook();
-      const retrieved = book.get('asdf');
-      expect(retrieved).to.be.undefined;
-    });
+  it("get non-existing order", () => {
+    const book = new OrderBook();
+    const retrieved = book.get('asdf');
+    expect(retrieved).to.be.undefined;
+  });
 });

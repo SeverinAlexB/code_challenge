@@ -13,14 +13,14 @@ const { PeerRPCClient } = require('grenache-nodejs-http'); // No types available
 export class ExchangeClient {
     private link: typeof Link;
     private peer: typeof PeerRPCClient;
-    constructor(public exchangeId: number) {}
+    constructor(public exchangeId: number) { }
 
     public init() {
         this.link = new Link({
             grape: 'http://127.0.0.1:30001'
         });
         this.link.start();
-    
+
         this.peer = new PeerRPCClient(this.link, {});
         this.peer.init();
         console.log(`Client started. ID:`, this.exchangeId);
@@ -69,13 +69,13 @@ export class ExchangeClient {
     }
 
     public async ping() {
-            const message = new PingPongMessage();
-            message.exchangeId = this.exchangeId;
-            message.creatorType = 'client';
-            message.message = 'ping';
+        const message = new PingPongMessage();
+        message.exchangeId = this.exchangeId;
+        message.creatorType = 'client';
+        message.message = 'ping';
 
-            const result = await this.request(message);
-            console.log('Ping successful:', result);
+        const result = await this.request(message);
+        console.log('Ping successful:', result);
     }
 
     public async addOrder(order: AddOrderMessage) {
@@ -93,7 +93,7 @@ export class ExchangeClient {
         message.orderId = orderId;
         message.exchangeId = this.exchangeId;
         message.creatorType = 'client';
-        
+
         const result = await this.request(message);
 
         const orders = result.map((order: any) => AddOrderMessage.fromJson(order));
@@ -118,5 +118,5 @@ export class ExchangeClient {
 
         return await this.requestEndpoint(message, endpoint);
     }
-    
+
 }
