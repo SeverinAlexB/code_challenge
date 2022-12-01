@@ -34,7 +34,7 @@ async function startPlaybook(client: ExchangeClient) {
   await client.addOrder(buyOrder);
 
   setTimeout(() => {
-      // Add sell order with a delay
+      // Add sell order with a delay to simulate an async match.
       const sellOrder = new AddOrderMessage();
       sellOrder.amountToBuy = 1;
       sellOrder.buy = 'USD';
@@ -44,13 +44,14 @@ async function startPlaybook(client: ExchangeClient) {
 
   let matches: AddOrderMessage[] = [];
   while (true) {
+    // Check buy order every second to see if we have a match.
       await sleep(1000);
       matches = await client.getOrderMatches(buyOrder.id);
       if (matches.length > 0) {
           break;
       }
   }
-  console.log(`Found ${matches.length} matches to our initial order.`);
+  console.log(`Found ${matches.length} matches to our buy order.`);
   for (const match of matches) {
       console.log(`-`, match.toString());
   }

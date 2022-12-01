@@ -50,6 +50,7 @@ export class ExchangeClient {
     public async addOrder(order: AddOrderMessage) {
         order.creatorId = this.exchangeId;
         order.creatorType = 'client';
+        // Todo: Add endpoint if my server so other users can call to execute my order.
 
         const result = await this.request(order);
         console.log(`Added order ${order.toString()} successfully`, result);
@@ -69,24 +70,13 @@ export class ExchangeClient {
         return orders;
     }
 
-    public async getServiceEndpoints(): Promise<string[]> {
-        return new Promise<string[]>((resolve, reject) => {
-            this.link.lookup('exchange', [], (res: any, endpoints: string[]) => {
-                resolve(endpoints);
-            })
-        });
-    }
-
-    public async syncOrderBook() {
-        const endpoints = await this.getServiceEndpoints();
-        // Todo: Call each endpoint to get their orderbooks. Merge then into our book.
-    }
-
     public async executeOrder(orderId: string): Promise<ExecuteOrderResponse> {
         const message = new ExecuteOrderMessage();
         message.creatorId = this.exchangeId;
         message.creatorType = 'client';
         message.orderId = orderId;
+        // This message needs to be sent to the specific endpoint where the orderid comes from.
+        // Todo: Implement call to specific endpoint for order execution.
         return await this.request(message);
     }
     

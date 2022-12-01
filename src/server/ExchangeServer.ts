@@ -111,5 +111,17 @@ export class ExchangeServer {
         return response;
     }
 
+    public async getServiceEndpoints(): Promise<string[]> {
+        return new Promise<string[]>((resolve, reject) => {
+            this.link.lookup('exchange', [], (res: any, endpoints: string[]) => {
+                resolve(endpoints);
+            })
+        });
+    }
+
+    public async syncOrderBook() {
+        const endpoints = await this.getServiceEndpoints();
+        // Todo: Call each endpoint to get their orderbooks. Merge it into our book.
+    }
 
 }
