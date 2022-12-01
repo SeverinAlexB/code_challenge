@@ -39,5 +39,13 @@ export async function startClient(exchangeId: number) {
         console.log(`-`, match.toString());
     }
 
+    const invoice = await client.executeOrder(matches[0].id);
+
+    console.log(`Execute trade with Lightninig invoice that expires in 15min.`, invoice.orderId, '<-->', buyOrder.id);
+    // Todo: Pay lightning invoice to complete the exchange.
+    
+    console.log('Notify peers to remove the orders from the orderbook.');
+    // Todo: Notify peers to remove the orders from the orderbook.
+
     process.exit(0);
 }

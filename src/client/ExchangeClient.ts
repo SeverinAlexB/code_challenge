@@ -1,4 +1,6 @@
 import { AddOrderMessage } from "../messages/AddOrderMessage";
+import { ExecuteOrderMessage } from "../messages/ExecuteOrderMessage";
+import { ExecuteOrderResponse } from "../messages/ExecuteOrderResponse";
 import { GetOrderMatchesMessage } from "../messages/GetOrderMatchesMessage";
 import { PingPongMessage } from "../messages/PingPongMessage";
 
@@ -81,6 +83,14 @@ export class ExchangeClient {
     public async syncOrderBook() {
         const endpoints = await this.getServiceEndpoints();
         // Todo: Call each endpoint to get their orderbooks. Merge then into our book.
+    }
+
+    public async executeOrder(orderId: string): Promise<ExecuteOrderResponse> {
+        const message = new ExecuteOrderMessage();
+        message.creatorId = this.exchangeId;
+        message.creatorType = 'client';
+        message.orderId = orderId;
+        return await this.request(message);
     }
     
 }

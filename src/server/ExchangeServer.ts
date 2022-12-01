@@ -1,4 +1,5 @@
 import { AddOrderMessage } from "../messages/AddOrderMessage";
+import { ExecuteOrderResponse } from "../messages/ExecuteOrderResponse";
 import { PingPongMessage } from "../messages/PingPongMessage";
 import { OrderBook } from "./OrderBook";
 
@@ -9,6 +10,7 @@ export class ExchangeServer {
     private orderBook = new OrderBook();
     private link: typeof Link;
     private server: typeof PeerRPCServer;
+    private announceIntervalId: NodeJS.Timeout | undefined;
     constructor(public exchangeId: number) {}
 
     public init() {
@@ -26,7 +28,7 @@ export class ExchangeServer {
         const service = this.server.transport('server');
         service.listen(port);
 
-        setInterval(() => {
+        this.announceIntervalId = setInterval(() => {
             this.link.announce('exchange', service.port, {})
         }, 1000);
 
@@ -44,6 +46,15 @@ export class ExchangeServer {
         console.log(`Server started. ID:`, this.exchangeId);
     }
 
+    public stop() {
+        if (this.announceIntervalId) {
+            clearInterval(this.announceIntervalId);
+        }
+        if (this.link) {
+            this.link.stop();
+        }
+    }
+
     private onMessageReceived(msg: any): any {
         if (msg.type === 'PingPongMessage') {
             return this.processPingPong(msg);
@@ -51,6 +62,8 @@ export class ExchangeServer {
             return this.processAddOrder(msg);
         } else if (msg.type === 'GetOrderMatchesMessage') {
             return this.processGetOrderMatches(msg);
+        } else if (msg.type === 'ExecuteOrderMessage') {
+            return this.processExecuteOrder(msg);
         } else {
             throw new Error('Unknown message type ' + msg);
         }   
@@ -77,5 +90,25 @@ export class ExchangeServer {
         return matches;
     }
 
-    
+    private processExecuteOrder(msg: any): any {
+        // The trade will be executed on Lightning (Taro or TBD?).
+        // Trade can be executed within 15min. During this time, the order is exclusively locked for this specific user.
+
+        const orderId = msg.orderId;
+        // Todo: Check if order actually exists and the user really want to do this.
+        // Make a redis lock on the orderId which expires in 15min.
+
+        const response = new ExecuteOrderResponse();
+        response.creatorId = this.exchangeId;
+        response.creatorType = 'server';
+        const _15min = 1000*60*15;
+        response.exiresAt = new Date().getTime() + _15min;
+        response.orderId = orderId;
+
+        // Make lightning invoice expire in 15min.
+        response.lightningInvoice = 'lntb1u1pwz5w78pp5e8w8cr5c30xzws92v36sk45znhjn098rtc4pea6ertnmvu25ng3sdpywd6hyetyvf5hgueqv3jk6meqd9h8vmmfvdjsxqrrssy29mzkzjfq27u67evzu893heqex737dhcapvcuantkztg6pnk77nrm72y7z0rs47wzc09vcnugk2ve6sr2ewvcrtqnh3yttv847qqvqpvv398';
+        return response;
+    }
+
+
 }
