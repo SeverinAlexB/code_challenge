@@ -10,8 +10,13 @@ export class AddOrderMessage extends BaseMessage {
     public sell: 'USD' | 'BTC' = 'USD';
     public amountToBuy: number = 0;
 
-    constructor() {
+    constructor(opts?: {buy: 'USD' | 'BTC', sell: 'USD' | 'BTC', amountToBuy: number}) {
         super('AddOrderMessage');
+        if (opts) {
+            this.buy = opts.buy;
+            this.sell = opts.sell;
+            this.amountToBuy = opts.amountToBuy;
+        }
     }
 
     public isMatch(other: AddOrderMessage): boolean {

@@ -28,22 +28,16 @@ async function main() {
 async function startPlaybook(client: ExchangeClient) {
   await client.ping();
 
-  const buyOrder = new AddOrderMessage();
-  buyOrder.amountToBuy = 1;
-  buyOrder.buy = 'BTC';
-  buyOrder.sell = 'USD';
+  const buyOrder = new AddOrderMessage({buy: 'BTC', sell: 'USD', amountToBuy: 1});
 
   await client.addOrder(buyOrder);
   await sleep(2 * 60 * 1000)
 
   setTimeout(() => {
     // Add sell order with a delay to simulate an async match.
-    const sellOrder = new AddOrderMessage();
-    sellOrder.amountToBuy = 1;
-    sellOrder.buy = 'USD';
-    sellOrder.sell = 'BTC';
+    const sellOrder = new AddOrderMessage({buy: 'USD', sell: 'BTC', amountToBuy: 1});
     client.addOrder(sellOrder);
-  }, 1500);
+  }, 7000);
 
   let matches: AddOrderMessage[] = [];
   while (true) {

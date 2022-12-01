@@ -32,7 +32,6 @@ export class ExchangeClient {
             try {
                 this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
                     if (err) {
-                        console.error('Error:', err);
                         reject(err);
                         return;
                     }
@@ -54,7 +53,6 @@ export class ExchangeClient {
             try {
                 this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
                     if (err) {
-                        console.error('Error:', err);
                         reject(err);
                         return;
                     }
@@ -74,8 +72,13 @@ export class ExchangeClient {
         message.creatorType = 'client';
         message.message = 'ping';
 
-        const result = await this.request(message);
-        console.log('Ping successful:', result);
+        try {
+            const result = await this.request(message);
+            console.log('Ping successful:', result);
+        } catch (e) {
+            console.log('Ping failed.');
+        }
+
     }
 
     public async addOrder(order: AddOrderMessage) {

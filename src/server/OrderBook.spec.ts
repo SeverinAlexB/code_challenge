@@ -7,16 +7,10 @@ describe("OrderBook", () => {
   it("getMatches", () => {
     const book = new OrderBook();
 
-    const buyOrder = new AddOrderMessage();
-    buyOrder.buy = 'BTC';
-    buyOrder.sell = 'USD';
-    buyOrder.amountToBuy = 1;
+    const buyOrder = new AddOrderMessage({buy: 'BTC', sell: 'USD', amountToBuy: 1});
     book.add(buyOrder);
 
-    const sellOrder = new AddOrderMessage();
-    sellOrder.buy = 'USD';
-    sellOrder.sell = 'BTC';
-    sellOrder.amountToBuy = 1;
+    const sellOrder = new AddOrderMessage({buy: 'USD', sell: 'BTC', amountToBuy: 1});
     book.add(sellOrder);
 
     const matches = book.getMatches(buyOrder.id);
@@ -28,10 +22,7 @@ describe("OrderBook", () => {
   it("getMatches no match", () => {
     const book = new OrderBook();
 
-    const buyOrder = new AddOrderMessage();
-    buyOrder.buy = 'BTC';
-    buyOrder.sell = 'USD';
-    buyOrder.amountToBuy = 1;
+    const buyOrder = new AddOrderMessage({buy: 'BTC', sell: 'USD', amountToBuy: 1});
     book.add(buyOrder);
 
     const matches = book.getMatches(buyOrder.id);
@@ -39,10 +30,7 @@ describe("OrderBook", () => {
   });
 
   it("add and get", () => {
-    const order = new AddOrderMessage();
-    order.buy = 'BTC';
-    order.sell = 'USD';
-    order.amountToBuy = 1;
+    const order = new AddOrderMessage({buy: 'BTC', sell: 'USD', amountToBuy: 1});
 
     const book = new OrderBook();
     book.add(order);

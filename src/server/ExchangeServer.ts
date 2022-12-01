@@ -144,13 +144,19 @@ export class ExchangeServer {
         const client = new ExchangeClient(this.exchangeId);
         client.init();
         for (const endpoint of endpoints) {
-            const orders = await client.getOrderbook(endpoint)
-            console.log(`Synced ${orders.length} orders from ${endpoint}`);
-            for (const orderJson of orders) {
-                const order = AddOrderMessage.fromJson(orderJson);
-                this.book.add(order);
-                console.log(' -', order.toString());
+            try {
+                const orders = await client.getOrderbook(endpoint)
+                console.log(`Synced ${orders.length} orders from ${endpoint}`);
+                for (const orderJson of orders) {
+                    const order = AddOrderMessage.fromJson(orderJson);
+                    this.book.add(order);
+                    console.log(' -', order.toString());
+                }
+            } catch (e) {
+                console.error('Couldnt reach endpoint', endpoint, e);
+                continue;
             }
+
         }
     }
 
