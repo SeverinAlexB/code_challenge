@@ -1,12 +1,29 @@
-const world = 'world';
+import { startServer } from "./server";
+import { startClient } from "./client";
 
-export function hello(who: string = world) {
-  console.log(`Hello ${who}!`);
+enum CommandEnum {
+  server=1,
+  client=2
 }
 
-export function add(a: number, b: number): number {
-  return a + b;
+function getCommand(): CommandEnum {
+  const invalidArgError = new Error("Command line argument required. Either use 'server' or 'client'. Example: `npm run start -- server`.");
+  if (process.argv.length < 3) {
+    throw invalidArgError;
+  }
+  const arg = process.argv[2];  
+  if (arg === 'server') {
+    return CommandEnum.server;
+  } else if (arg === 'client') {
+    return CommandEnum.client;
+  } else {
+    throw invalidArgError;
+  }
 }
 
-hello("Sev");
-hello();
+const command = getCommand();
+if (command === CommandEnum.client) {
+  startClient();
+} else if (command === CommandEnum.server) {
+  startServer();
+}

@@ -1,7 +1,9 @@
 
 import { expect } from "chai";
-import {add} from ".";
 
+function add(a: number, b: number): number {
+    return a + b;
+}
 
 
 describe("add function", () => {
