@@ -47,6 +47,7 @@ export class ExchangeServer {
     }
 
     public stop() {
+        console.log('Stop server', this.exchangeId);
         if (this.announceIntervalId) {
             clearInterval(this.announceIntervalId);
         }

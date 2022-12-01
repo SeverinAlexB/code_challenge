@@ -24,8 +24,9 @@ export class ExchangeClient {
     }
 
     private async request(requestData: any): Promise<any> {
+        const jsonMessage = JSON.stringify(requestData);
         return new Promise<any>((resolve, reject) => {
-            this.peer.request('exchange', requestData, { timeout: 10000 }, (err: any, data: any) => {
+            this.peer.request('exchange', jsonMessage, { timeout: 10000 }, (err: any, data: any) => {
                 if (err) {
                     console.error('Error:', err);
                     reject(err);
@@ -41,19 +42,16 @@ export class ExchangeClient {
             message.creatorId = this.exchangeId;
             message.creatorType = 'client';
             message.message = 'ping';
-        
-            const jsonMessage = JSON.stringify(message);
 
-            const result = await this.request(jsonMessage);
+            const result = await this.request(message);
             console.log('Ping successful:', result);
     }
 
     public async addOrder(order: AddOrderMessage) {
         order.creatorId = this.exchangeId;
         order.creatorType = 'client';
-        const jsonMessage = JSON.stringify(order);
 
-        const result = await this.request(jsonMessage);
+        const result = await this.request(order);
         console.log(`Added order ${order.toString()} successfully`, result);
 
     }
@@ -63,9 +61,8 @@ export class ExchangeClient {
         message.orderId = orderId;
         message.creatorId = this.exchangeId;
         message.creatorType = 'client';
-        const jsonMessage = JSON.stringify(message);
-
-        const result = await this.request(jsonMessage);
+        
+        const result = await this.request(message);
 
         const orders = result.map((order: any) => AddOrderMessage.fromJson(order));
         console.log(`Found the following matches`, orders);
